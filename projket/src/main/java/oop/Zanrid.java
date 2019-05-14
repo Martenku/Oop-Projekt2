@@ -10,19 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Zanrid {
-    Document document;
-    public List<String> zanrite_list = new ArrayList<String>();
-    public List<String> pealkirjade_list = new ArrayList<String>();
+    private Document document;
+    private List<String> zanrite_list = new ArrayList<String>();
+    private List<String> pealkirjade_list = new ArrayList<String>();
 
 
-    public Zanrid() throws IOException {
+    public Zanrid() throws Exception{
         this.document = Jsoup.connect("https://www.forumcinemas.ee/Movies/NowInTheatres/").get();
 
     }
 
     // Koguda kokku koik zanrid
     public List<String> zanrid() {
-
         for (Element row : document.select("div.results tr")) {
             final String zanr = row.select(".small_txt").text(); // zanrid
             int alug = zanr.indexOf("Žanr: ");
@@ -44,7 +43,6 @@ public class Zanrid {
 
         return pealkirjade_list;
     }//pealkirjad
-
 
 
     public List<String> getZanrite_list() {
