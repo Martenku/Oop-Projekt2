@@ -1,0 +1,4 @@
+Antud java failide käivitamiseks on vaja "JSOUP" libaries.
+
+ava: https://jsoup.org/packages/jsoup-1.11.3.jar
+Project Structure -> Libaries -> lisa allatõmmatud libaries.
