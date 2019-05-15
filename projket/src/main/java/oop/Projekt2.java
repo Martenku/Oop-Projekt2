@@ -1,6 +1,15 @@
+/**Projekt2
+ * Aine: Oop
+ * Authors: Marten Kuusmann ja Kaisa Liina Keps
+ * 2019:05:16
+ *
+ */
+
+
+
+
 package oop;
 
-import com.sun.source.tree.IfTree;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -8,7 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -16,34 +24,39 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Projekt2 extends Application {
+
+    private String nimi ="";
+    private String loosiVõitja ="";
     private Desktop desktop = Desktop.getDesktop();
+
+
     @Override
     public void start(Stage peaLava) throws Exception {
 
+        //alus
         Group juur = new Group();
+        Scene stseen = new Scene(juur);
         final Canvas lõuend = new Canvas(300, 500);
         FileChooser fileManus = new FileChooser();
+        //
 
-        //Zanri box
+
+
+
+        //Zanri Inputbox
         final TextField zanr_otsimine = new TextField();
         zanr_otsimine.setPromptText("Sisesta Zanr");
         zanr_otsimine.setFocusTraversable(false);
@@ -53,16 +66,23 @@ public class Projekt2 extends Application {
         hb.setMargin(zanr_otsimine, new Insets(5,5,5,10));
         hb.setMargin(VeaSõnum, new Insets(10, 20, 20, 10));
         hb.getChildren().addAll(zanr_otsimine, VeaSõnum);
-        //Zanri box
+        //Zanri inputbox
 
+
+
+        //failisõnum
+        Label failisõnum = new Label();
+        failisõnum.setTextFill(Color.RED);
+        failisõnum.setLayoutX(10);
+        failisõnum.setTranslateY(530);
+        //
 
 
 
         //Faili nupp
-
-        Button Fail_nupp = new Button("Lisa fail...");
-        Fail_nupp.setLayoutY(500);
-        Fail_nupp.setLayoutX(10);
+        Button failiNupp = new Button("Lisa fail...");
+        failiNupp.setLayoutY(500);
+        failiNupp.setLayoutX(10);
         //Faili nupp
 
         //filmide loendi areen
@@ -74,24 +94,8 @@ public class Projekt2 extends Application {
         text.setLayoutX(10);
         //filmide loendi areen
 
-        //Errori sõnum
 
 
-
-        //
- //       String texts = "";
- //       Zanrid uusZ = new Zanrid();
-//        uusZ.pealkirjad();
-//        List<String> list = uusZ.getPealkirjade_list();
-//        int i = 0;
-//       for (i=1;i<=list.size()-1;i++) {
-//           texts = texts + "" + list.get(i) + "\n";
-//        }//for
-//        System.out.println(zanr_otsimine.getText());
-//        text.setText(texts);
-//        filmide_summa.setLayoutX(500);
-//        filmide_summa.setLayoutY(570);
-        //täidame areeni filmidega
 
 
         //Zanri kuular
@@ -100,9 +104,9 @@ public class Projekt2 extends Application {
             public void handle(ActionEvent event) {
                 try {
                     if (zanr_otsimine.getText().matches("^[a-zA-Zä-üÄ-Ü]*$")) {
-                        SobivadFilmid eesel = new SobivadFilmid(zanr_otsimine.getText());
-                        eesel.sobivFilm();
-                        List<String> midagi = eesel.getSoovitud();
+                        SobivadFilmid Sb = new SobivadFilmid(zanr_otsimine.getText());
+                        Sb.sobivFilm();
+                        List<String> midagi = Sb.getSoovitud();
                         String texts = "";
                         int i = 0;
                         for (i = 0; i <= midagi.size() - 1; i++) {
@@ -114,98 +118,93 @@ public class Projekt2 extends Application {
                         text.setText("");
                         throw new SisendiErind("Vigane Sisend!");
 
-                    }
+                    }//else
 
                 } catch (Exception e) {
                     VeaSõnum.setText(e.getMessage());
-
-                }
+                }//catch
             }//handle
         };//sisestatud_zanr
         zanr_otsimine.setOnAction(sisestatud_zanr);
-
-
-        lõuend.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-
-            }
-        });
+        //zanri kuular
 
 
         //Faili vastuvõtja
-        Fail_nupp.setOnAction(new EventHandler<ActionEvent>() {
+        failiNupp.setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
                 File file = fileManus.showOpenDialog(peaLava);
-                if (file !=null){
-                    Fail_nupp.setText(file.getName());
-                    openFile(file);
-                }//if
+                try {
+                    if (file.length() != 0) {
+                        String tee = file.getAbsolutePath();
+                        if (!file.getName().toLowerCase().endsWith(".txt")) throw new SisendiErind("Vigane fail");
+                        failiNupp.setText(file.getName());
+                        List<String> osalejad = loeFaili(tee);
+                        String võitja = Loos(osalejad);
+                        loosiVõitja(võitja);
+                        failisõnum.setText("võitja lisati faili: loosiVõitja.txt");
+                    }//if
+                    else {
+                        throw new SisendiErind("tühi fail");
+                    }
+                }catch (Exception e){
+                    failisõnum.setText(e.getMessage());
+                }//catch
             }//handle
         });//setOnAction
         //Faili vastuvõtja
+
+        //lava sätted
         peaLava.getIcons().add(new Image("https://www.ut.ee/sites/all/themes/ut_main/img/logo-facebook-turvaalaga-uus.png"));
         peaLava.setTitle("");
-        juur.getChildren().addAll(lõuend,hb, Fail_nupp, text);
-        Scene stseen = new Scene(juur);
+        juur.getChildren().addAll(lõuend,hb, failiNupp, text, failisõnum);
+        peaLava.setMaxHeight(600);
+        peaLava.setMaxWidth(300);
+        peaLava.setMinHeight(600);
+        peaLava.setMinWidth(300);
         peaLava.setScene(stseen);
         peaLava.show();
+    }//
 
-    }
+    //Loosime failis olevatest inimestest välja ühe suvalise isiku
+    public String Loos(List<String> osalejateList){
+        int indeks = (int)(Math.random()*osalejateList.size());
+        loosiVõitja = osalejateList.get(indeks);
+        return loosiVõitja;
+    }//
 
+    // Loosi võitja nimi kirjutatakse faili loosiVõitja.txt
+    public void loosiVõitja(String võitja) throws IOException{
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("loosiVõitja.txt"), "UTF-8"));
+        bw.write(võitja);
+        bw.close();
+    }//
 
+    //Loeme sisse kasutaja antud faili
+    public List<String> loeFaili(String nimi) throws Exception {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(nimi), "UTF-8"))) {
+            String rida = br.readLine();
+            ArrayList<String> osalejad = new ArrayList<>();
+            while (rida != null) {
+                osalejad.add(rida);
+                rida = br.readLine();
+            } return osalejad;
+        }
+    }//
 
-
-
-    public static void main(String[] args) {
-        launch(args);
-    }
+    //Fili avamine
     private void openFile(File file){
         try {
             desktop.open(file);
         }catch (IOException e){
             Logger.getLogger(Projekt2.class.getName()).log(Level.SEVERE, null, e);
         }
+    }//
+
+    public static void main(String[] args) {
+        launch(args);
     }
 
 }
 
-class ResizableCanvas extends Canvas {
 
-    @Override
-    public double minHeight(double width) {
-        return 64;
-    }
-
-    @Override
-    public double maxHeight(double width) {
-        return 500;
-    }
-
-    @Override
-    public double prefHeight(double width) {
-        return minHeight(width);
-    }
-
-    @Override
-    public double minWidth(double height) {
-        return 0;
-    }
-
-    @Override
-    public double maxWidth(double height) {
-        return 300;
-    }
-
-    @Override
-    public boolean isResizable() {
-        return true;
-    }
-
-    @Override
-    public void resize(double width, double height) {
-        super.setWidth(width);
-        super.setHeight(height);
-    }
-}

@@ -27,13 +27,10 @@ public class SobivadFilmid{
 
     public void sobivFilm() {
         int a = 0;
-        System.out.println(Filmid.size());
-        System.out.println(otsitav + " zanri filmid on: ");
 
         for (int i = 0; i < Zanrid.size(); i++) {
             if (Zanrid.get(i).toLowerCase().indexOf(otsitav.toLowerCase()) != -1) {
                 soovitud.add(Filmid.get(i));
-                System.out.println(Filmid.get(i));
             } else {
                 a++;
             }
@@ -52,10 +49,8 @@ public class SobivadFilmid{
 
     // Random filmi valik
     public void juhuslikuFilmiGeneraator(List<String> list){
-
         int indeks = (int)(Math.random()*list.size());
         String juhuslik_film = list.get(indeks);
-        System.out.println("\nJuhuslik film, mida võid soovi korral vaatama minna on: " + juhuslik_film);
-    }
+    }//
 }
 
